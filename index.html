@@ -37,20 +37,20 @@
     }
 
     :root {
-      --bg-primary: #0a0a0f;
-      --bg-secondary: #111118;
-      --bg-card: #16161f;
+      --bg-primary: #181824;
+      --bg-secondary: #1e1e2c;
+      --bg-card: #252538;
       --accent-gold: #c9a84c;
       --accent-gold-light: #e8c97a;
       --accent-rose: #c97b8a;
       --text-primary: #f0ede6;
       --text-secondary: #9e9b94;
-      --text-muted: #5a5852;
-      --border: rgba(201,168,76,0.15);
-      --border-hover: rgba(201,168,76,0.4);
-      --timeline-line: rgba(201,168,76,0.25);
-      --shadow: 0 4px 30px rgba(0,0,0,0.5);
-      --glow: 0 0 40px rgba(201,168,76,0.08);
+      --text-muted: #6a6760;
+      --border: rgba(201,168,76,0.18);
+      --border-hover: rgba(201,168,76,0.45);
+      --timeline-line: rgba(201,168,76,0.3);
+      --shadow: 0 4px 30px rgba(0,0,0,0.4);
+      --glow: 0 0 40px rgba(201,168,76,0.12);
     }
 
     html {
@@ -227,9 +227,9 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse 80% 60% at 20% 50%, rgba(201,168,76,0.06) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 80% at 80% 30%, rgba(201,123,138,0.05) 0%, transparent 50%),
-        radial-gradient(ellipse 50% 50% at 50% 100%, rgba(201,168,76,0.04) 0%, transparent 60%);
+        radial-gradient(ellipse 80% 60% at 20% 50%, rgba(201,168,76,0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 30%, rgba(201,123,138,0.09) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 50% at 50% 100%, rgba(201,168,76,0.07) 0%, transparent 60%);
       animation: gradientShift 12s ease-in-out infinite alternate;
     }
 
@@ -1323,49 +1323,116 @@
     (function() {
       const canvas = document.getElementById('particles-canvas');
       const ctx = canvas.getContext('2d');
-      let particles = [];
+      let elements = [];
       let W, H, animId;
+
+      const COLORS = [
+        [201,168,76],   // gold
+        [232,201,122],  // gold light
+        [201,123,138],  // rose
+        [180,155,220],  // soft lavender
+      ];
 
       function resize() {
         W = canvas.width  = canvas.offsetWidth;
         H = canvas.height = canvas.offsetHeight;
       }
 
-      class Particle {
+      /* shape types: 0=dot, 1=diamond, 2=cross, 3=ring, 4=line */
+      class Element {
         constructor() { this.reset(true); }
         reset(init) {
-          this.x = Math.random() * W;
-          this.y = init ? Math.random() * H : H + 5;
-          this.r = Math.random() * 1.5 + 0.3;
-          this.speed = Math.random() * 0.4 + 0.1;
-          this.drift = (Math.random() - 0.5) * 0.3;
-          this.alpha = Math.random() * 0.4 + 0.05;
+          this.x     = Math.random() * W;
+          this.y     = init ? Math.random() * H : H + 20;
+          this.type  = Math.floor(Math.random() * 5);
+          this.size  = this.type === 4
+                       ? Math.random() * 30 + 10
+                       : Math.random() * 8 + 2;
+          this.speed = Math.random() * 0.5 + 0.15;
+          this.drift = (Math.random() - 0.5) * 0.45;
+          this.rot   = Math.random() * Math.PI * 2;
+          this.rotSpeed = (Math.random() - 0.5) * 0.02;
+          this.alpha = Math.random() * 0.35 + 0.08;
           this.pulse = Math.random() * Math.PI * 2;
-          this.pulseSpeed = Math.random() * 0.015 + 0.005;
+          this.pulseSpeed = Math.random() * 0.018 + 0.004;
+          this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
         }
         update() {
-          this.y -= this.speed;
-          this.x += this.drift;
+          this.y    -= this.speed;
+          this.x    += this.drift;
+          this.rot  += this.rotSpeed;
           this.pulse += this.pulseSpeed;
-          if (this.y < -5) this.reset(false);
+          if (this.y < -30) this.reset(false);
         }
         draw() {
-          const a = this.alpha * (0.6 + 0.4 * Math.sin(this.pulse));
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(201,168,76,${a})`;
-          ctx.fill();
+          const a = this.alpha * (0.55 + 0.45 * Math.sin(this.pulse));
+          const [r,g,b] = this.color;
+          ctx.save();
+          ctx.translate(this.x, this.y);
+          ctx.rotate(this.rot);
+          ctx.globalAlpha = a;
+
+          if (this.type === 0) {
+            /* dot */
+            ctx.beginPath();
+            ctx.arc(0, 0, this.size * 0.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgb(${r},${g},${b})`;
+            ctx.fill();
+
+          } else if (this.type === 1) {
+            /* diamond */
+            const s = this.size;
+            ctx.beginPath();
+            ctx.moveTo(0, -s);
+            ctx.lineTo(s * 0.6, 0);
+            ctx.lineTo(0, s);
+            ctx.lineTo(-s * 0.6, 0);
+            ctx.closePath();
+            ctx.strokeStyle = `rgb(${r},${g},${b})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+
+          } else if (this.type === 2) {
+            /* cross / plus */
+            const s = this.size * 0.55;
+            ctx.strokeStyle = `rgb(${r},${g},${b})`;
+            ctx.lineWidth = 0.9;
+            ctx.beginPath();
+            ctx.moveTo(-s, 0); ctx.lineTo(s, 0);
+            ctx.moveTo(0, -s); ctx.lineTo(0, s);
+            ctx.stroke();
+
+          } else if (this.type === 3) {
+            /* ring */
+            ctx.beginPath();
+            ctx.arc(0, 0, this.size * 0.5, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgb(${r},${g},${b})`;
+            ctx.lineWidth = 0.7;
+            ctx.stroke();
+
+          } else {
+            /* short diagonal line */
+            const s = this.size;
+            ctx.strokeStyle = `rgb(${r},${g},${b})`;
+            ctx.lineWidth = 0.6;
+            ctx.beginPath();
+            ctx.moveTo(-s * 0.5, -s * 0.5);
+            ctx.lineTo(s * 0.5, s * 0.5);
+            ctx.stroke();
+          }
+
+          ctx.restore();
         }
       }
 
       function init() {
         resize();
-        particles = Array.from({ length: 80 }, () => new Particle());
+        elements = Array.from({ length: 90 }, () => new Element());
       }
 
       function loop() {
         ctx.clearRect(0, 0, W, H);
-        particles.forEach(p => { p.update(); p.draw(); });
+        elements.forEach(e => { e.update(); e.draw(); });
         animId = requestAnimationFrame(loop);
       }
 
