@@ -268,20 +268,16 @@
       overflow: hidden;
     }
 
-    .hero-avatar-placeholder {
+    .hero-avatar-img {
       width: 160px;
       height: 160px;
       border-radius: 50%;
-      border: 1px solid var(--border-hover);
-      background: linear-gradient(135deg, var(--bg-card) 0%, rgba(201,168,76,0.08) 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 3.5rem;
-      color: var(--accent-gold);
+      object-fit: cover;
+      object-position: center top;
+      border: 2px solid var(--border-hover);
       position: relative;
       z-index: 1;
+      display: block;
       animation: avatarGlow 4s ease-in-out infinite alternate;
     }
 
@@ -1053,11 +1049,9 @@
         padding: 1.2rem 1.4rem;
       }
 
-      .hero-avatar-placeholder,
-      .hero-avatar {
+      .hero-avatar-img {
         width: 120px;
         height: 120px;
-        font-size: 2.8rem;
       }
 
       .skills-grid {
@@ -1107,7 +1101,13 @@
     <div class="hero-content">
       <div class="hero-avatar-wrap">
         <div class="hero-avatar-ring" aria-hidden="true"></div>
-        <div class="hero-avatar-placeholder" role="img" aria-label="Фото профиля Анны Киселевой">А</div>
+        <img
+          src="Hero Photo.JPG"
+          alt="Фото Анны Киселевой"
+          class="hero-avatar-img"
+          width="160"
+          height="160"
+        />
       </div>
 
       <p class="hero-eyebrow">Портфолио</p>
