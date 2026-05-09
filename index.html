@@ -1507,16 +1507,16 @@
         constructor(init) { this.reset(init); }
         reset(init) {
           this.x     = Math.random() * W;
-          this.y     = init ? Math.random() * H : H + 40;
+          this.y     = init ? Math.random() * H : H + 60;
           this.type  = TYPES[Math.floor(Math.random() * TYPES.length)];
-          this.size  = Math.random() * 14 + 9;
-          this.speed = Math.random() * 0.45 + 0.12;
-          this.drift = (Math.random() - 0.5) * 0.4;
+          this.size  = Math.random() * 22 + 18;        // 18–40 px — big enough to read
+          this.speed = Math.random() * 0.35 + 0.1;
+          this.drift = (Math.random() - 0.5) * 0.35;
           this.rot   = Math.random() * Math.PI * 2;
-          this.rotSp = (Math.random() - 0.5) * 0.009;
-          this.alpha = Math.random() * 0.28 + 0.07;
+          this.rotSp = (Math.random() - 0.5) * 0.006; // slow, elegant spin
+          this.alpha = Math.random() * 0.30 + 0.13;   // 0.13–0.43
           this.pulse = Math.random() * Math.PI * 2;
-          this.pulSp = Math.random() * 0.016 + 0.004;
+          this.pulSp = Math.random() * 0.014 + 0.004;
           this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
         }
         update() {
@@ -1524,7 +1524,7 @@
           this.x    += this.drift;
           this.rot  += this.rotSp;
           this.pulse += this.pulSp;
-          if (this.y < -50 || this.x < -60 || this.x > W + 60) this.reset(false);
+          if (this.y < -70 || this.x < -80 || this.x > W + 80) this.reset(false);
         }
         draw() {
           const a = this.alpha * (0.5 + 0.5 * Math.sin(this.pulse));
@@ -1534,9 +1534,9 @@
           ctx.translate(this.x, this.y);
           ctx.rotate(this.rot);
           ctx.strokeStyle = `rgba(${r},${g},${b},${a})`;
-          ctx.fillStyle   = `rgba(${r},${g},${b},${a * 0.18})`;
-          ctx.lineWidth   = 0.75;
-          ctx.lineCap = 'round';
+          ctx.fillStyle   = `rgba(${r},${g},${b},${a * 0.22})`;
+          ctx.lineWidth   = 1.1;
+          ctx.lineCap  = 'round';
           ctx.lineJoin = 'round';
 
           switch (this.type) {
@@ -1551,172 +1551,278 @@
           ctx.restore();
         }
 
+        /* ✏️ PENCIL — eraser · body · tip cone · graphite dot */
         _pencil(s) {
-          const w = s * 0.28, h = s * 1.5;
-          /* eraser block */
-          ctx.fillRect(-w/2, -h/2, w, h * 0.14);
-          ctx.strokeRect(-w/2, -h/2, w, h * 0.14);
-          /* body */
-          ctx.strokeRect(-w/2, -h/2 + h*0.14, w, h * 0.64);
-          /* tip cone */
+          const w = s * 0.32, h = s * 1.8;
+          const top = -h / 2;
+
+          // eraser (filled block at top)
+          ctx.fillRect(-w/2, top, w, h * 0.13);
+          ctx.strokeRect(-w/2, top, w, h * 0.13);
+
+          // metal band separating eraser from body
+          ctx.lineWidth = 1.4;
           ctx.beginPath();
-          ctx.moveTo(-w/2, -h/2 + h*0.78);
-          ctx.lineTo(0,     -h/2 + h);
-          ctx.lineTo( w/2,  -h/2 + h*0.78);
+          ctx.moveTo(-w/2, top + h * 0.13);
+          ctx.lineTo( w/2, top + h * 0.13);
           ctx.stroke();
-          /* graphite tip dot */
+          ctx.lineWidth = 1.1;
+
+          // body rectangle
+          ctx.strokeRect(-w/2, top + h * 0.13, w, h * 0.62);
+
+          // wood-tip cone
           ctx.beginPath();
-          ctx.arc(0, -h/2 + h, 1, 0, Math.PI*2);
+          ctx.moveTo(-w/2, top + h * 0.75);
+          ctx.lineTo( 0,    top + h * 0.94);
+          ctx.lineTo( w/2,  top + h * 0.75);
+          ctx.stroke();
+
+          // graphite tip point
+          ctx.beginPath();
+          ctx.arc(0, top + h, 1.6, 0, Math.PI * 2);
           ctx.fill();
+
+          // centre line on body (wood grain feel)
+          ctx.globalAlpha = ctx.globalAlpha !== undefined ? undefined : 1;
+          ctx.beginPath();
+          ctx.moveTo(0, top + h * 0.14);
+          ctx.lineTo(0, top + h * 0.75);
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+          ctx.lineWidth = 1.1;
         }
 
+        /* 🖊 FOUNTAIN PEN — tapered body · cap · side clip · nib slit */
         _pen(s) {
-          const w = s * 0.24, h = s * 1.7;
-          /* body */
+          const w = s * 0.28, h = s * 2.0;
+          const top = -h / 2;
+
+          // cap (upper 30%)
+          ctx.fillRect(-w/2, top, w, h * 0.30);
+          ctx.strokeRect(-w/2, top, w, h * 0.30);
+
+          // cap-body join line
           ctx.beginPath();
-          ctx.moveTo(-w/2,    -h/2);
-          ctx.lineTo( w/2,    -h/2);
-          ctx.lineTo( w/2*0.5, h/2 - s*0.28);
-          ctx.lineTo( 0,       h/2);
-          ctx.lineTo(-w/2*0.5, h/2 - s*0.28);
+          ctx.moveTo(-w/2, top + h * 0.30);
+          ctx.lineTo( w/2, top + h * 0.30);
+          ctx.stroke();
+
+          // body tapering to nib section
+          ctx.beginPath();
+          ctx.moveTo(-w/2,       top + h * 0.30);
+          ctx.lineTo( w/2,       top + h * 0.30);
+          ctx.lineTo( w/2 * 0.55, top + h * 0.78);
+          ctx.lineTo( 0,          top + h);
+          ctx.lineTo(-w/2 * 0.55, top + h * 0.78);
+          ctx.lineTo(-w/2,        top + h * 0.30);
           ctx.closePath();
           ctx.stroke();
-          /* nib slit */
+
+          // nib centre slit
           ctx.beginPath();
-          ctx.moveTo(0, h/2 - s*0.22);
-          ctx.lineTo(0, h/2);
+          ctx.moveTo(0, top + h * 0.82);
+          ctx.lineTo(0, top + h);
+          ctx.lineWidth = 0.6;
           ctx.stroke();
-          /* clip on side */
+          ctx.lineWidth = 1.1;
+
+          // clip along right side
           ctx.beginPath();
-          ctx.moveTo(w/2,          -h/2);
-          ctx.lineTo(w/2 + s*0.12,  h/2 - s*0.7);
+          ctx.moveTo(w/2 + 1,   top + h * 0.04);
+          ctx.lineTo(w/2 + s*0.14, top + h * 0.68);
           ctx.stroke();
-          /* cap line */
+
+          // clip bottom knob
           ctx.beginPath();
-          ctx.moveTo(-w/2, -h/2 + s*0.22);
-          ctx.lineTo( w/2, -h/2 + s*0.22);
-          ctx.stroke();
+          ctx.arc(w/2 + s*0.14, top + h * 0.68, 2, 0, Math.PI * 2);
+          ctx.fill();
         }
 
+        /* 📓 NOTEBOOK — cover · spine · ruled lines · spiral holes */
         _notebook(s) {
-          const w = s * 1.15, h = s * 1.45;
-          /* cover */
-          ctx.strokeRect(-w/2, -h/2, w, h);
-          ctx.fillRect(-w/2, -h/2, w, h);
-          /* spine */
+          const w = s * 1.4, h = s * 1.75;
+          const top = -h / 2, left = -w / 2;
+          const spineX = left + s * 0.22;
+
+          // cover fill + border
+          ctx.fillRect(left, top, w, h);
+          ctx.strokeRect(left, top, w, h);
+
+          // spine line
           ctx.beginPath();
-          ctx.moveTo(-w/2 + s*0.2, -h/2);
-          ctx.lineTo(-w/2 + s*0.2,  h/2);
+          ctx.moveTo(spineX, top);
+          ctx.lineTo(spineX, top + h);
+          ctx.lineWidth = 1.4;
           ctx.stroke();
-          /* ruled lines */
-          [0.32, 0.50, 0.67].forEach(t => {
+          ctx.lineWidth = 1.1;
+
+          // ruled lines (4 lines)
+          [0.30, 0.46, 0.62, 0.77].forEach(t => {
             ctx.beginPath();
-            ctx.moveTo(-w/2 + s*0.3, -h/2 + h*t);
-            ctx.lineTo( w/2 - s*0.1, -h/2 + h*t);
+            ctx.moveTo(spineX + s * 0.12, top + h * t);
+            ctx.lineTo(left + w - s * 0.1, top + h * t);
+            ctx.lineWidth = 0.7;
             ctx.stroke();
           });
-          /* binding holes */
-          [0.22, 0.50, 0.78].forEach(t => {
+          ctx.lineWidth = 1.1;
+
+          // spiral binding holes (left of spine)
+          [0.20, 0.38, 0.56, 0.74].forEach(t => {
             ctx.beginPath();
-            ctx.arc(-w/2 + s*0.1, -h/2 + h*t, 1.5, 0, Math.PI*2);
-            ctx.fill();
+            ctx.arc(left + s * 0.11, top + h * t, 2.2, 0, Math.PI * 2);
+            ctx.stroke();
           });
         }
 
+        /* 📖 OPEN BOOK — curved left & right pages · spine · text lines */
         _book(s) {
-          const w = s * 1.35, h = s * 0.95;
-          /* left page */
+          const w = s * 1.6, h = s * 1.1;
+
+          // left page (bezier curve outward)
           ctx.beginPath();
-          ctx.moveTo(0, -h/2 - s*0.06);
-          ctx.bezierCurveTo(-w*0.08,-h/2, -w/2,-h/2+s*0.06, -w/2, 0);
-          ctx.bezierCurveTo(-w/2, h/2-s*0.06, -w*0.08, h/2, 0, h/2+s*0.06);
+          ctx.moveTo(0, -h/2);
+          ctx.bezierCurveTo(-w*0.06, -h/2,  -w/2, -h/2 + s*0.08, -w/2, 0);
+          ctx.bezierCurveTo(-w/2, h/2 - s*0.08, -w*0.06, h/2, 0, h/2);
           ctx.stroke();
-          /* right page */
+
+          // right page
           ctx.beginPath();
-          ctx.moveTo(0, -h/2 - s*0.06);
-          ctx.bezierCurveTo( w*0.08,-h/2,  w/2,-h/2+s*0.06,  w/2, 0);
-          ctx.bezierCurveTo( w/2, h/2-s*0.06,  w*0.08, h/2, 0, h/2+s*0.06);
+          ctx.moveTo(0, -h/2);
+          ctx.bezierCurveTo(w*0.06, -h/2,   w/2, -h/2 + s*0.08,  w/2, 0);
+          ctx.bezierCurveTo( w/2, h/2 - s*0.08,  w*0.06, h/2, 0, h/2);
           ctx.stroke();
-          /* spine */
+
+          // spine
+          ctx.lineWidth = 1.4;
           ctx.beginPath();
-          ctx.moveTo(0, -h/2 - s*0.06);
-          ctx.lineTo(0,  h/2 + s*0.06);
+          ctx.moveTo(0, -h/2);
+          ctx.lineTo(0,  h/2);
           ctx.stroke();
-          /* text lines left */
-          [-h*0.22, 0, h*0.22].forEach(dy => {
+          ctx.lineWidth = 1.1;
+
+          // text lines on left page (4 lines)
+          const lx1 = -w * 0.44, lx2 = -s * 0.12;
+          [-h*0.28, -h*0.08, h*0.12, h*0.30].forEach(dy => {
             ctx.beginPath();
-            ctx.moveTo(-w*0.38, dy); ctx.lineTo(-s*0.1, dy); ctx.stroke();
+            ctx.moveTo(lx1, dy); ctx.lineTo(lx2, dy);
+            ctx.lineWidth = 0.65; ctx.stroke();
           });
-          /* text lines right */
-          [-h*0.22, 0, h*0.22].forEach(dy => {
+
+          // text lines on right page
+          const rx1 = s * 0.12, rx2 = w * 0.44;
+          [-h*0.28, -h*0.08, h*0.12, h*0.30].forEach(dy => {
             ctx.beginPath();
-            ctx.moveTo(s*0.1, dy); ctx.lineTo(w*0.38, dy); ctx.stroke();
+            ctx.moveTo(rx1, dy); ctx.lineTo(rx2, dy);
+            ctx.lineWidth = 0.65; ctx.stroke();
           });
+          ctx.lineWidth = 1.1;
         }
 
+        /* 🪶 QUILL — rachis shaft · spreading vanes · split nib */
         _quill(s) {
-          const h = s * 1.8;
-          /* shaft */
+          const h = s * 2.2;
+          const tipY = h * 0.48, topY = -h * 0.52;
+
+          // main rachis (shaft)
           ctx.beginPath();
-          ctx.moveTo(0,  h*0.45);
-          ctx.lineTo(0, -h*0.1);
+          ctx.moveTo(0, tipY);
+          ctx.quadraticCurveTo(s * 0.06, 0, 0, topY);
+          ctx.lineWidth = 1.0;
           ctx.stroke();
-          /* vanes */
-          for (let i = 0; i < 6; i++) {
-            const t  = i / 5;
-            const y  = h*0.42 - t * h * 0.72;
-            const xl = s * (0.08 + t * 0.52);
+          ctx.lineWidth = 1.1;
+
+          // vanes — spread outward more toward top
+          const vaneCount = 8;
+          for (let i = 0; i < vaneCount; i++) {
+            const t = i / (vaneCount - 1);                 // 0=tip … 1=top
+            const y = tipY - t * (tipY - topY);
+            const spread = s * (0.05 + t * 0.65);
+            const curl   = -s * (0.1 + t * 0.25);
+
+            // right vane
             ctx.beginPath();
             ctx.moveTo(0, y);
-            ctx.quadraticCurveTo( xl*0.55, y - s*0.14,  xl, y - s*0.28 + t*s*0.1);
+            ctx.quadraticCurveTo(spread * 0.6, y + curl * 0.5, spread, y + curl);
+            ctx.lineWidth = 0.7 + t * 0.5;
             ctx.stroke();
+
+            // left vane (mirror)
             ctx.beginPath();
             ctx.moveTo(0, y);
-            ctx.quadraticCurveTo(-xl*0.55, y - s*0.14, -xl, y - s*0.28 + t*s*0.1);
+            ctx.quadraticCurveTo(-spread * 0.6, y + curl * 0.5, -spread, y + curl);
             ctx.stroke();
           }
-          /* nib */
+          ctx.lineWidth = 1.1;
+
+          // nib — two prongs diverging from tip
           ctx.beginPath();
-          ctx.moveTo(0, h*0.45);
-          ctx.lineTo(-s*0.13, h*0.45 - s*0.28);
-          ctx.moveTo(0, h*0.45);
-          ctx.lineTo( s*0.13, h*0.45 - s*0.28);
+          ctx.moveTo(0, tipY);
+          ctx.lineTo(-s * 0.16, tipY + s * 0.32);
+          ctx.moveTo(0, tipY);
+          ctx.lineTo( s * 0.16, tipY + s * 0.32);
           ctx.stroke();
+
+          // nib centre slit
+          ctx.beginPath();
+          ctx.moveTo(0, tipY + s * 0.08);
+          ctx.lineTo(0, tipY + s * 0.30);
+          ctx.lineWidth = 0.55;
+          ctx.stroke();
+          ctx.lineWidth = 1.1;
         }
 
+        /* 💧 INK DROP — clean teardrop · filled · highlight dot */
         _inkdrop(s) {
-          /* teardrop */
           ctx.beginPath();
-          ctx.moveTo(0, -s*0.7);
-          ctx.bezierCurveTo( s*0.55,-s*0.1,  s*0.55, s*0.35, 0, s*0.55);
-          ctx.bezierCurveTo(-s*0.55, s*0.35, -s*0.55,-s*0.1, 0, -s*0.7);
+          ctx.moveTo(0, -s * 0.78);
+          ctx.bezierCurveTo( s * 0.58, -s * 0.12,  s * 0.58,  s * 0.38, 0,  s * 0.60);
+          ctx.bezierCurveTo(-s * 0.58,  s * 0.38, -s * 0.58, -s * 0.12, 0, -s * 0.78);
           ctx.closePath();
+          ctx.fill();
           ctx.stroke();
-          ctx.fill();
-          /* inner highlight */
+
+          // inner highlight (white-ish sub-drop)
+          ctx.save();
+          ctx.fillStyle = `rgba(255,255,255,${0.35})`;
           ctx.beginPath();
-          ctx.arc(s*0.12, s*0.05, s*0.1, 0, Math.PI*2);
+          ctx.arc(s * 0.14, s * 0.02, s * 0.13, 0, Math.PI * 2);
           ctx.fill();
+          ctx.restore();
         }
 
+        /* ✳️ INK STAR — 6-ray asterisk · centre dot */
         _star(s) {
-          /* 6-point ink-star (asterisk style) */
           for (let i = 0; i < 6; i++) {
-            const a = (i / 6) * Math.PI * 2;
+            const angle = (i / 6) * Math.PI * 2;
+            const inner = s * 0.18, outer = s * 0.82;
             ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(Math.cos(a)*s*0.7, Math.sin(a)*s*0.7);
+            ctx.moveTo(Math.cos(angle) * inner, Math.sin(angle) * inner);
+            ctx.lineTo(Math.cos(angle) * outer, Math.sin(angle) * outer);
+            ctx.lineWidth = 1.3;
             ctx.stroke();
           }
+          ctx.lineWidth = 1.1;
+
+          // centre filled circle
           ctx.beginPath();
-          ctx.arc(0, 0, s*0.12, 0, Math.PI*2);
+          ctx.arc(0, 0, s * 0.14, 0, Math.PI * 2);
           ctx.fill();
+          ctx.stroke();
+
+          // tiny end dots at each ray tip
+          for (let i = 0; i < 6; i++) {
+            const angle = (i / 6) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.arc(Math.cos(angle) * s * 0.82, Math.sin(angle) * s * 0.82, 1.4, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
       }
 
       function init() {
         resize();
-        elements = Array.from({ length: 100 }, (_, i) => new WritingEl(true));
+        elements = Array.from({ length: 110 }, () => new WritingEl(true));
       }
 
       function loop() {
