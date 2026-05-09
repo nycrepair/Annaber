@@ -1489,13 +1489,16 @@
       const ctx    = canvas.getContext('2d');
       let elements = [], W, H, animId;
 
-      const COLORS = [
-        [201,168,76],  // gold
-        [232,201,122], // light gold
-        [201,123,138], // rose
-        [180,155,220], // lavender
-        [140,185,200], // soft teal
-      ];
+      // Per-type vibrant colour palettes: [bodyRGB, accentRGB, darkRGB]
+      const SHAPE_COLORS = {
+        pencil:   { body:[255,214,51],  accent:[255,120,130], dark:[70,45,10]  },
+        pen:      { body:[70,130,230],  accent:[200,225,255], dark:[20,35,90]  },
+        notebook: { body:[220,65,75],   accent:[255,210,210], dark:[80,18,22]  },
+        book:     { body:[48,185,115],  accent:[185,245,210], dark:[15,60,35]  },
+        quill:    { body:[245,218,130], accent:[190,140,55],  dark:[75,55,15]  },
+        inkdrop:  { body:[160,80,240],  accent:[220,185,255], dark:[55,18,95]  },
+        star:     { body:[45,215,215],  accent:[195,255,255], dark:[15,75,75]  },
+      };
       const TYPES = ['pencil','pen','notebook','book','quill','inkdrop','star'];
 
       function resize() {
@@ -1507,314 +1510,383 @@
         constructor(init) { this.reset(init); }
         reset(init) {
           this.x     = Math.random() * W;
-          this.y     = init ? Math.random() * H : H + 60;
+          this.y     = init ? Math.random() * H : H + 70;
           this.type  = TYPES[Math.floor(Math.random() * TYPES.length)];
-          this.size  = Math.random() * 22 + 18;        // 18–40 px — big enough to read
-          this.speed = Math.random() * 0.35 + 0.1;
-          this.drift = (Math.random() - 0.5) * 0.35;
+          this.size  = Math.random() * 26 + 32;        // 32–58 px — clearly visible
+          this.speed = Math.random() * 0.30 + 0.08;
+          this.drift = (Math.random() - 0.5) * 0.30;
           this.rot   = Math.random() * Math.PI * 2;
-          this.rotSp = (Math.random() - 0.5) * 0.006; // slow, elegant spin
-          this.alpha = Math.random() * 0.30 + 0.13;   // 0.13–0.43
+          this.rotSp = (Math.random() - 0.5) * 0.005;
+          this.alpha = Math.random() * 0.18 + 0.72;   // 0.72–0.90  full colour
           this.pulse = Math.random() * Math.PI * 2;
-          this.pulSp = Math.random() * 0.014 + 0.004;
-          this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+          this.pulSp = Math.random() * 0.012 + 0.003;
+          this.pal   = SHAPE_COLORS[this.type];
         }
         update() {
           this.y    -= this.speed;
           this.x    += this.drift;
           this.rot  += this.rotSp;
           this.pulse += this.pulSp;
-          if (this.y < -70 || this.x < -80 || this.x > W + 80) this.reset(false);
+          if (this.y < -80 || this.x < -90 || this.x > W + 90) this.reset(false);
         }
         draw() {
-          const a = this.alpha * (0.5 + 0.5 * Math.sin(this.pulse));
-          const [r,g,b] = this.color;
-          const s = this.size;
+          const pulse = 0.88 + 0.12 * Math.sin(this.pulse);
+          const a  = this.alpha * pulse;
+          const s  = this.size;
+          const {body, accent, dark} = this.pal;
+          const bodyC   = `rgba(${body[0]},${body[1]},${body[2]},${a})`;
+          const accentC = `rgba(${accent[0]},${accent[1]},${accent[2]},${a})`;
+          const darkC   = `rgba(${dark[0]},${dark[1]},${dark[2]},${Math.min(1,a+0.1)})`;
+
           ctx.save();
           ctx.translate(this.x, this.y);
           ctx.rotate(this.rot);
-          ctx.strokeStyle = `rgba(${r},${g},${b},${a})`;
-          ctx.fillStyle   = `rgba(${r},${g},${b},${a * 0.22})`;
-          ctx.lineWidth   = 1.1;
           ctx.lineCap  = 'round';
           ctx.lineJoin = 'round';
 
           switch (this.type) {
-            case 'pencil':   this._pencil(s);   break;
-            case 'pen':      this._pen(s);       break;
-            case 'notebook': this._notebook(s);  break;
-            case 'book':     this._book(s);      break;
-            case 'quill':    this._quill(s);     break;
-            case 'inkdrop':  this._inkdrop(s);   break;
-            case 'star':     this._star(s);      break;
+            case 'pencil':   this._pencil(s,   bodyC, accentC, darkC); break;
+            case 'pen':      this._pen(s,       bodyC, accentC, darkC); break;
+            case 'notebook': this._notebook(s,  bodyC, accentC, darkC); break;
+            case 'book':     this._book(s,      bodyC, accentC, darkC); break;
+            case 'quill':    this._quill(s,     bodyC, accentC, darkC); break;
+            case 'inkdrop':  this._inkdrop(s,   bodyC, accentC, darkC); break;
+            case 'star':     this._star(s,      bodyC, accentC, darkC); break;
           }
           ctx.restore();
         }
 
-        /* ✏️ PENCIL — eraser · body · tip cone · graphite dot */
-        _pencil(s) {
-          const w = s * 0.32, h = s * 1.8;
+        /* ✏️ PENCIL */
+        _pencil(s, bodyC, accentC, darkC) {
+          const w = s * 0.34, h = s * 2.0;
           const top = -h / 2;
 
-          // eraser (filled block at top)
-          ctx.fillRect(-w/2, top, w, h * 0.13);
-          ctx.strokeRect(-w/2, top, w, h * 0.13);
+          // eraser — pink filled block
+          ctx.fillStyle = accentC;
+          ctx.strokeStyle = darkC;
+          ctx.lineWidth = 1.8;
+          ctx.fillRect(-w/2, top, w, h * 0.12);
+          ctx.strokeRect(-w/2, top, w, h * 0.12);
 
-          // metal band separating eraser from body
-          ctx.lineWidth = 1.4;
+          // metal ferrule band
+          ctx.fillStyle = `rgba(190,190,210,${0.85})`;
+          ctx.fillRect(-w/2, top + h * 0.12, w, h * 0.06);
+          ctx.strokeStyle = darkC;
+          ctx.strokeRect(-w/2, top + h * 0.12, w, h * 0.06);
+
+          // body — bright yellow fill
+          ctx.fillStyle = bodyC;
+          ctx.fillRect(-w/2, top + h * 0.18, w, h * 0.58);
+          ctx.strokeStyle = darkC;
+          ctx.strokeRect(-w/2, top + h * 0.18, w, h * 0.58);
+
+          // centre grain line
           ctx.beginPath();
-          ctx.moveTo(-w/2, top + h * 0.13);
-          ctx.lineTo( w/2, top + h * 0.13);
+          ctx.moveTo(0, top + h * 0.19);
+          ctx.lineTo(0, top + h * 0.76);
+          ctx.strokeStyle = `rgba(${this.pal.dark[0]},${this.pal.dark[1]},${this.pal.dark[2]},0.45)`;
+          ctx.lineWidth = 1.0;
           ctx.stroke();
-          ctx.lineWidth = 1.1;
 
-          // body rectangle
-          ctx.strokeRect(-w/2, top + h * 0.13, w, h * 0.62);
-
-          // wood-tip cone
+          // wood cone tip
           ctx.beginPath();
-          ctx.moveTo(-w/2, top + h * 0.75);
-          ctx.lineTo( 0,    top + h * 0.94);
-          ctx.lineTo( w/2,  top + h * 0.75);
-          ctx.stroke();
-
-          // graphite tip point
-          ctx.beginPath();
-          ctx.arc(0, top + h, 1.6, 0, Math.PI * 2);
+          ctx.moveTo(-w/2, top + h * 0.76);
+          ctx.lineTo(0,    top + h * 0.94);
+          ctx.lineTo( w/2, top + h * 0.76);
+          ctx.fillStyle = `rgba(210,160,90,0.9)`;
           ctx.fill();
-
-          // centre line on body (wood grain feel)
-          ctx.globalAlpha = ctx.globalAlpha !== undefined ? undefined : 1;
-          ctx.beginPath();
-          ctx.moveTo(0, top + h * 0.14);
-          ctx.lineTo(0, top + h * 0.75);
-          ctx.lineWidth = 0.5;
+          ctx.strokeStyle = darkC;
+          ctx.lineWidth = 1.8;
           ctx.stroke();
-          ctx.lineWidth = 1.1;
+
+          // graphite tip
+          ctx.beginPath();
+          ctx.arc(0, top + h * 0.97, 2.4, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(60,60,70,0.95)`;
+          ctx.fill();
         }
 
-        /* 🖊 FOUNTAIN PEN — tapered body · cap · side clip · nib slit */
-        _pen(s) {
-          const w = s * 0.28, h = s * 2.0;
+        /* 🖊 FOUNTAIN PEN */
+        _pen(s, bodyC, accentC, darkC) {
+          const w = s * 0.30, h = s * 2.2;
           const top = -h / 2;
 
-          // cap (upper 30%)
+          // cap — accent colour fill
+          ctx.fillStyle = accentC;
+          ctx.strokeStyle = darkC;
+          ctx.lineWidth = 1.8;
           ctx.fillRect(-w/2, top, w, h * 0.30);
           ctx.strokeRect(-w/2, top, w, h * 0.30);
 
-          // cap-body join line
-          ctx.beginPath();
-          ctx.moveTo(-w/2, top + h * 0.30);
-          ctx.lineTo( w/2, top + h * 0.30);
-          ctx.stroke();
+          // cap shine stripe
+          ctx.fillStyle = `rgba(255,255,255,0.25)`;
+          ctx.fillRect(-w/2 + 2, top + 2, w * 0.3, h * 0.26);
 
-          // body tapering to nib section
+          // body — solid body colour, tapers to nib
           ctx.beginPath();
-          ctx.moveTo(-w/2,       top + h * 0.30);
-          ctx.lineTo( w/2,       top + h * 0.30);
-          ctx.lineTo( w/2 * 0.55, top + h * 0.78);
-          ctx.lineTo( 0,          top + h);
-          ctx.lineTo(-w/2 * 0.55, top + h * 0.78);
-          ctx.lineTo(-w/2,        top + h * 0.30);
+          ctx.moveTo(-w/2,         top + h * 0.30);
+          ctx.lineTo( w/2,         top + h * 0.30);
+          ctx.lineTo( w/2 * 0.50,  top + h * 0.78);
+          ctx.lineTo( 0,           top + h);
+          ctx.lineTo(-w/2 * 0.50,  top + h * 0.78);
+          ctx.lineTo(-w/2,         top + h * 0.30);
           ctx.closePath();
+          ctx.fillStyle = bodyC;
+          ctx.fill();
+          ctx.strokeStyle = darkC;
           ctx.stroke();
 
-          // nib centre slit
+          // nib slit
           ctx.beginPath();
           ctx.moveTo(0, top + h * 0.82);
           ctx.lineTo(0, top + h);
-          ctx.lineWidth = 0.6;
-          ctx.stroke();
-          ctx.lineWidth = 1.1;
-
-          // clip along right side
-          ctx.beginPath();
-          ctx.moveTo(w/2 + 1,   top + h * 0.04);
-          ctx.lineTo(w/2 + s*0.14, top + h * 0.68);
+          ctx.strokeStyle = darkC;
+          ctx.lineWidth = 1.0;
           ctx.stroke();
 
-          // clip bottom knob
+          // clip — right side, accent colour
           ctx.beginPath();
-          ctx.arc(w/2 + s*0.14, top + h * 0.68, 2, 0, Math.PI * 2);
+          ctx.moveTo(w/2 + 1.5,    top + h * 0.03);
+          ctx.lineTo(w/2 + s*0.16, top + h * 0.68);
+          ctx.strokeStyle = accentC;
+          ctx.lineWidth = 2.2;
+          ctx.stroke();
+
+          // clip knob
+          ctx.beginPath();
+          ctx.arc(w/2 + s*0.16, top + h * 0.68, 3, 0, Math.PI * 2);
+          ctx.fillStyle = accentC;
           ctx.fill();
         }
 
-        /* 📓 NOTEBOOK — cover · spine · ruled lines · spiral holes */
-        _notebook(s) {
-          const w = s * 1.4, h = s * 1.75;
+        /* 📓 NOTEBOOK */
+        _notebook(s, bodyC, accentC, darkC) {
+          const w = s * 1.45, h = s * 1.80;
           const top = -h / 2, left = -w / 2;
-          const spineX = left + s * 0.22;
+          const spineW = s * 0.20;
+          const spineX = left + spineW;
 
-          // cover fill + border
+          // cover fill
+          ctx.fillStyle = bodyC;
+          ctx.strokeStyle = darkC;
+          ctx.lineWidth = 2.0;
           ctx.fillRect(left, top, w, h);
           ctx.strokeRect(left, top, w, h);
 
-          // spine line
-          ctx.beginPath();
-          ctx.moveTo(spineX, top);
-          ctx.lineTo(spineX, top + h);
-          ctx.lineWidth = 1.4;
-          ctx.stroke();
-          ctx.lineWidth = 1.1;
+          // spine — darker shade
+          ctx.fillStyle = `rgba(${this.pal.dark[0]+30},${this.pal.dark[1]+10},${this.pal.dark[2]+10},0.9)`;
+          ctx.fillRect(left, top, spineW, h);
+          ctx.strokeStyle = darkC;
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(left, top, spineW, h);
 
-          // ruled lines (4 lines)
-          [0.30, 0.46, 0.62, 0.77].forEach(t => {
+          // page area fill — cream
+          ctx.fillStyle = `rgba(255,252,235,0.92)`;
+          ctx.fillRect(spineX, top + 4, w - spineW - 4, h - 8);
+
+          // ruled lines
+          ctx.strokeStyle = `rgba(160,180,210,0.7)`;
+          [0.28, 0.44, 0.60, 0.75, 0.89].forEach(t => {
             ctx.beginPath();
-            ctx.moveTo(spineX + s * 0.12, top + h * t);
-            ctx.lineTo(left + w - s * 0.1, top + h * t);
-            ctx.lineWidth = 0.7;
+            ctx.moveTo(spineX + 6, top + h * t);
+            ctx.lineTo(left + w - 5, top + h * t);
+            ctx.lineWidth = 1.0;
             ctx.stroke();
           });
-          ctx.lineWidth = 1.1;
 
-          // spiral binding holes (left of spine)
-          [0.20, 0.38, 0.56, 0.74].forEach(t => {
+          // spiral holes
+          ctx.strokeStyle = darkC;
+          ctx.fillStyle   = `rgba(255,255,255,0.7)`;
+          [0.18, 0.36, 0.54, 0.72, 0.88].forEach(t => {
             ctx.beginPath();
-            ctx.arc(left + s * 0.11, top + h * t, 2.2, 0, Math.PI * 2);
+            ctx.arc(left + spineW * 0.5, top + h * t, 2.8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.lineWidth = 1.2;
             ctx.stroke();
           });
         }
 
-        /* 📖 OPEN BOOK — curved left & right pages · spine · text lines */
-        _book(s) {
-          const w = s * 1.6, h = s * 1.1;
+        /* 📖 OPEN BOOK */
+        _book(s, bodyC, accentC, darkC) {
+          const w = s * 1.7, h = s * 1.15;
 
-          // left page (bezier curve outward)
+          // left page shape
           ctx.beginPath();
           ctx.moveTo(0, -h/2);
-          ctx.bezierCurveTo(-w*0.06, -h/2,  -w/2, -h/2 + s*0.08, -w/2, 0);
-          ctx.bezierCurveTo(-w/2, h/2 - s*0.08, -w*0.06, h/2, 0, h/2);
+          ctx.bezierCurveTo(-w*0.05, -h/2, -w/2, -h/2 + s*0.1, -w/2, 0);
+          ctx.bezierCurveTo(-w/2, h/2 - s*0.1, -w*0.05, h/2, 0, h/2);
+          ctx.closePath();
+          ctx.fillStyle = `rgba(255,252,235,0.92)`;
+          ctx.fill();
+          ctx.strokeStyle = darkC;
+          ctx.lineWidth = 2.0;
           ctx.stroke();
 
-          // right page
+          // right page shape
           ctx.beginPath();
           ctx.moveTo(0, -h/2);
-          ctx.bezierCurveTo(w*0.06, -h/2,   w/2, -h/2 + s*0.08,  w/2, 0);
-          ctx.bezierCurveTo( w/2, h/2 - s*0.08,  w*0.06, h/2, 0, h/2);
+          ctx.bezierCurveTo(w*0.05, -h/2,  w/2, -h/2 + s*0.1, w/2, 0);
+          ctx.bezierCurveTo(w/2, h/2 - s*0.1, w*0.05, h/2, 0, h/2);
+          ctx.closePath();
+          ctx.fillStyle = `rgba(245,248,255,0.92)`;
+          ctx.fill();
+          ctx.strokeStyle = darkC;
           ctx.stroke();
 
-          // spine
-          ctx.lineWidth = 1.4;
+          // cover colour peeking at spine
+          ctx.fillStyle = bodyC;
+          ctx.fillRect(-4, -h/2, 8, h);
+
+          // spine line
           ctx.beginPath();
           ctx.moveTo(0, -h/2);
           ctx.lineTo(0,  h/2);
+          ctx.strokeStyle = darkC;
+          ctx.lineWidth = 2.4;
           ctx.stroke();
-          ctx.lineWidth = 1.1;
 
-          // text lines on left page (4 lines)
-          const lx1 = -w * 0.44, lx2 = -s * 0.12;
-          [-h*0.28, -h*0.08, h*0.12, h*0.30].forEach(dy => {
-            ctx.beginPath();
-            ctx.moveTo(lx1, dy); ctx.lineTo(lx2, dy);
-            ctx.lineWidth = 0.65; ctx.stroke();
+          // text lines — left page
+          ctx.strokeStyle = `rgba(100,120,150,0.6)`;
+          const lx1 = -w * 0.44, lx2 = -8;
+          [-h*0.30, -h*0.10, h*0.10, h*0.30].forEach(dy => {
+            ctx.beginPath(); ctx.moveTo(lx1, dy); ctx.lineTo(lx2, dy);
+            ctx.lineWidth = 1.2; ctx.stroke();
           });
 
-          // text lines on right page
-          const rx1 = s * 0.12, rx2 = w * 0.44;
-          [-h*0.28, -h*0.08, h*0.12, h*0.30].forEach(dy => {
-            ctx.beginPath();
-            ctx.moveTo(rx1, dy); ctx.lineTo(rx2, dy);
-            ctx.lineWidth = 0.65; ctx.stroke();
+          // text lines — right page
+          const rx1 = 8, rx2 = w * 0.44;
+          [-h*0.30, -h*0.10, h*0.10, h*0.30].forEach(dy => {
+            ctx.beginPath(); ctx.moveTo(rx1, dy); ctx.lineTo(rx2, dy);
+            ctx.lineWidth = 1.2; ctx.stroke();
           });
-          ctx.lineWidth = 1.1;
         }
 
-        /* 🪶 QUILL — rachis shaft · spreading vanes · split nib */
-        _quill(s) {
-          const h = s * 2.2;
+        /* 🪶 QUILL */
+        _quill(s, bodyC, accentC, darkC) {
+          const h = s * 2.4;
           const tipY = h * 0.48, topY = -h * 0.52;
 
-          // main rachis (shaft)
+          // vane fill via polygon (full feather silhouette)
           ctx.beginPath();
           ctx.moveTo(0, tipY);
-          ctx.quadraticCurveTo(s * 0.06, 0, 0, topY);
-          ctx.lineWidth = 1.0;
-          ctx.stroke();
-          ctx.lineWidth = 1.1;
-
-          // vanes — spread outward more toward top
-          const vaneCount = 8;
-          for (let i = 0; i < vaneCount; i++) {
-            const t = i / (vaneCount - 1);                 // 0=tip … 1=top
+          for (let i = 0; i <= 8; i++) {
+            const t = i / 8;
             const y = tipY - t * (tipY - topY);
-            const spread = s * (0.05 + t * 0.65);
-            const curl   = -s * (0.1 + t * 0.25);
+            const spread = s * (0.04 + t * 0.70);
+            ctx.lineTo(spread, y - s * t * 0.22);
+          }
+          for (let i = 8; i >= 0; i--) {
+            const t = i / 8;
+            const y = tipY - t * (tipY - topY);
+            const spread = s * (0.04 + t * 0.70);
+            ctx.lineTo(-spread, y - s * t * 0.22);
+          }
+          ctx.closePath();
+          ctx.fillStyle = bodyC;
+          ctx.fill();
 
-            // right vane
+          // rachis (shaft)
+          ctx.beginPath();
+          ctx.moveTo(0, tipY);
+          ctx.quadraticCurveTo(s * 0.07, 0, 0, topY);
+          ctx.strokeStyle = darkC;
+          ctx.lineWidth = 2.0;
+          ctx.stroke();
+
+          // vane strokes — individual barbs
+          ctx.strokeStyle = `rgba(${this.pal.dark[0]},${this.pal.dark[1]},${this.pal.dark[2]},0.5)`;
+          for (let i = 0; i < 9; i++) {
+            const t = i / 8;
+            const y = tipY - t * (tipY - topY);
+            const spread = s * (0.04 + t * 0.70);
+            const curl   = -s * t * 0.22;
             ctx.beginPath();
             ctx.moveTo(0, y);
-            ctx.quadraticCurveTo(spread * 0.6, y + curl * 0.5, spread, y + curl);
-            ctx.lineWidth = 0.7 + t * 0.5;
+            ctx.quadraticCurveTo(spread * 0.5, y + curl * 0.5, spread, y + curl);
+            ctx.lineWidth = 0.8 + t * 0.6;
             ctx.stroke();
-
-            // left vane (mirror)
             ctx.beginPath();
             ctx.moveTo(0, y);
-            ctx.quadraticCurveTo(-spread * 0.6, y + curl * 0.5, -spread, y + curl);
+            ctx.quadraticCurveTo(-spread * 0.5, y + curl * 0.5, -spread, y + curl);
             ctx.stroke();
           }
-          ctx.lineWidth = 1.1;
 
-          // nib — two prongs diverging from tip
+          // nib prongs
+          ctx.strokeStyle = accentC;
+          ctx.lineWidth = 2.0;
           ctx.beginPath();
           ctx.moveTo(0, tipY);
-          ctx.lineTo(-s * 0.16, tipY + s * 0.32);
+          ctx.lineTo(-s * 0.18, tipY + s * 0.35);
           ctx.moveTo(0, tipY);
-          ctx.lineTo( s * 0.16, tipY + s * 0.32);
+          ctx.lineTo( s * 0.18, tipY + s * 0.35);
           ctx.stroke();
-
-          // nib centre slit
+          ctx.strokeStyle = darkC;
+          ctx.lineWidth = 0.8;
           ctx.beginPath();
           ctx.moveTo(0, tipY + s * 0.08);
-          ctx.lineTo(0, tipY + s * 0.30);
-          ctx.lineWidth = 0.55;
+          ctx.lineTo(0, tipY + s * 0.32);
           ctx.stroke();
-          ctx.lineWidth = 1.1;
         }
 
-        /* 💧 INK DROP — clean teardrop · filled · highlight dot */
-        _inkdrop(s) {
+        /* 💧 INK DROP */
+        _inkdrop(s, bodyC, accentC, darkC) {
+          // teardrop shape
           ctx.beginPath();
-          ctx.moveTo(0, -s * 0.78);
-          ctx.bezierCurveTo( s * 0.58, -s * 0.12,  s * 0.58,  s * 0.38, 0,  s * 0.60);
-          ctx.bezierCurveTo(-s * 0.58,  s * 0.38, -s * 0.58, -s * 0.12, 0, -s * 0.78);
+          ctx.moveTo(0, -s * 0.80);
+          ctx.bezierCurveTo( s * 0.60, -s * 0.14,  s * 0.60, s * 0.40, 0,  s * 0.62);
+          ctx.bezierCurveTo(-s * 0.60,  s * 0.40, -s * 0.60, -s * 0.14, 0, -s * 0.80);
           ctx.closePath();
+          ctx.fillStyle = bodyC;
           ctx.fill();
+          ctx.strokeStyle = darkC;
+          ctx.lineWidth = 2.0;
           ctx.stroke();
 
-          // inner highlight (white-ish sub-drop)
-          ctx.save();
-          ctx.fillStyle = `rgba(255,255,255,${0.35})`;
+          // shine highlight
           ctx.beginPath();
-          ctx.arc(s * 0.14, s * 0.02, s * 0.13, 0, Math.PI * 2);
+          ctx.ellipse(s * 0.16, -s * 0.28, s * 0.14, s * 0.22, -0.5, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,0.50)`;
           ctx.fill();
-          ctx.restore();
+
+          // inner drop — darker shade
+          ctx.beginPath();
+          ctx.arc(0, s * 0.10, s * 0.18, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${this.pal.dark[0]},${this.pal.dark[1]},${this.pal.dark[2]},0.35)`;
+          ctx.fill();
         }
 
-        /* ✳️ INK STAR — 6-ray asterisk · centre dot */
-        _star(s) {
-          for (let i = 0; i < 6; i++) {
-            const angle = (i / 6) * Math.PI * 2;
-            const inner = s * 0.18, outer = s * 0.82;
-            ctx.beginPath();
-            ctx.moveTo(Math.cos(angle) * inner, Math.sin(angle) * inner);
-            ctx.lineTo(Math.cos(angle) * outer, Math.sin(angle) * outer);
-            ctx.lineWidth = 1.3;
-            ctx.stroke();
-          }
-          ctx.lineWidth = 1.1;
-
-          // centre filled circle
+        /* ✳️ INK STAR */
+        _star(s, bodyC, accentC, darkC) {
+          // filled star polygon (6-point)
           ctx.beginPath();
-          ctx.arc(0, 0, s * 0.14, 0, Math.PI * 2);
+          for (let i = 0; i < 12; i++) {
+            const angle = (i / 12) * Math.PI * 2 - Math.PI / 2;
+            const r = i % 2 === 0 ? s * 0.82 : s * 0.38;
+            const x = Math.cos(angle) * r, y = Math.sin(angle) * r;
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+          ctx.fillStyle = bodyC;
           ctx.fill();
+          ctx.strokeStyle = darkC;
+          ctx.lineWidth = 1.8;
           ctx.stroke();
 
-          // tiny end dots at each ray tip
+          // centre circle
+          ctx.beginPath();
+          ctx.arc(0, 0, s * 0.18, 0, Math.PI * 2);
+          ctx.fillStyle = accentC;
+          ctx.fill();
+          ctx.strokeStyle = darkC;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+
+          // tip dots
           for (let i = 0; i < 6; i++) {
-            const angle = (i / 6) * Math.PI * 2;
+            const angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
             ctx.beginPath();
-            ctx.arc(Math.cos(angle) * s * 0.82, Math.sin(angle) * s * 0.82, 1.4, 0, Math.PI * 2);
+            ctx.arc(Math.cos(angle) * s * 0.82, Math.sin(angle) * s * 0.82, 2.2, 0, Math.PI * 2);
+            ctx.fillStyle = accentC;
             ctx.fill();
           }
         }
@@ -1822,12 +1894,20 @@
 
       function init() {
         resize();
-        elements = Array.from({ length: 110 }, () => new WritingEl(true));
+        elements = Array.from({ length: 90 }, () => new WritingEl(true));
       }
 
       function loop() {
         ctx.clearRect(0, 0, W, H);
-        elements.forEach(e => { e.update(); e.draw(); });
+        elements.forEach(e => {
+          e.update();
+          // subtle glow matching each icon's body colour
+          const [r,g,b] = e.pal.body;
+          ctx.shadowColor  = `rgba(${r},${g},${b},0.55)`;
+          ctx.shadowBlur   = 10;
+          e.draw();
+          ctx.shadowBlur   = 0;
+        });
         animId = requestAnimationFrame(loop);
       }
 
