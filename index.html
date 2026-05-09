@@ -766,6 +766,69 @@
       opacity: 1;
     }
 
+    .timeline-duties {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .timeline-duties li {
+      font-size: 0.87rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      padding-left: 1.1rem;
+      position: relative;
+    }
+
+    .timeline-duties li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--accent-gold);
+      opacity: 0.6;
+      font-size: 0.75rem;
+      top: 0.05em;
+    }
+
+    .timeline-duties a {
+      color: var(--accent-gold);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(201,168,76,0.25);
+      transition: border-color 0.3s, color 0.3s;
+    }
+
+    .timeline-duties a:hover {
+      color: var(--accent-gold-light);
+      border-color: var(--accent-gold);
+    }
+
+    .timeline-sub {
+      margin-top: 0.35rem;
+      padding-left: 0.6rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem 1rem;
+    }
+
+    .timeline-sub span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .timeline-sub a {
+      font-size: 0.8rem;
+      color: var(--text-secondary) !important;
+      border-color: rgba(201,168,76,0.15) !important;
+    }
+
+    .timeline-sub a:hover {
+      color: var(--accent-gold) !important;
+    }
+
     /* ===== ACHIEVEMENTS ===== */
     #achievements {
       background: var(--bg-secondary);
@@ -1160,13 +1223,20 @@
             <p class="timeline-period">Июнь 2023 — Май 2025</p>
             <h3 class="timeline-role">Начальник отдела по работе с социальными медиа</h3>
             <p class="timeline-org">
-              <a href="https://disk.yandex.ru/d/jACi3gNSXJ3wew" target="_blank" rel="noopener noreferrer" aria-label="Рекомендательное письмо — ГБУ Мосволонтёр (открыть на Яндекс Диске)">ГБУ «Мосволонтёр»</a>
+              <a href="https://disk.yandex.ru/d/jACi3gNSXJ3wew" target="_blank" rel="noopener noreferrer" aria-label="Рекомендательное письмо (Яндекс Диск)">ГБУ «Мосволонтёр»</a>
               <span class="timeline-link-icon" aria-hidden="true">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
-                </svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
               </span>
             </p>
+            <ul class="timeline-duties">
+              <li>Разработка медиастратегии организации и управление её реализацией в цифровом пространстве</li>
+              <li>Сопровождение рекламных кампаний крупных мероприятий: Форум-выставка «Россия», Московский урбанистический форум, Штаб «Москва помогает»</li>
+              <li>Создание и запуск рекламы в Москве — наружные поверхности, парки, метро (<a href="https://disk.yandex.ru/d/jACi3gNSXJ3wew" target="_blank" rel="noopener noreferrer">примеры</a>)</li>
+              <li>Продюсирование имиджевых фото- и видеосъёмок: концепция, сценарий, работа с командой (<a href="https://disk.yandex.ru/d/c0YbsyIKR4Ph-w" target="_blank" rel="noopener noreferrer">портфолио</a>)</li>
+              <li>Разработка и защита коммуникационных концепций, выступления с презентациями</li>
+              <li>Аналитика соцсетей, оценка позиционирования, подготовка государственной отчётности</li>
+              <li>Координация работы сотрудников с блогерами и инфлюенсерами</li>
+            </ul>
           </div>
         </article>
 
@@ -1174,15 +1244,33 @@
           <div class="timeline-dot" aria-hidden="true"></div>
           <div class="timeline-card">
             <p class="timeline-period">Апрель 2022 — Май 2023</p>
-            <h3 class="timeline-role">Заместитель начальника отдела</h3>
+            <h3 class="timeline-role">Заместитель начальника отдела по работе с социальными медиа</h3>
             <p class="timeline-org">
-              <a href="https://disk.yandex.ru/d/ZHzS9AeDD7MrfQ" target="_blank" rel="noopener noreferrer" aria-label="Рекомендательное письмо — ГБУ Мосволонтёр (открыть на Яндекс Диске)">ГБУ «Мосволонтёр»</a>
+              <a href="https://disk.yandex.ru/d/ZHzS9AeDD7MrfQ" target="_blank" rel="noopener noreferrer" aria-label="Рекомендательное письмо (Яндекс Диск)">ГБУ «Мосволонтёр»</a>
               <span class="timeline-link-icon" aria-hidden="true">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
-                </svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
               </span>
             </p>
+            <ul class="timeline-duties">
+              <li>Контент-поддержка организации в ВКонтакте и Telegram</li>
+              <li>Контроль исполнения задач и координация работы сотрудников отдела</li>
+              <li>Организация и продюсирование фото- и видеосъёмок (репортажных и постановочных, включая съёмки со звёздами):
+                <div class="timeline-sub">
+                  <span>Видео:</span>
+                  <a href="https://vk.com/mosvolonter?w=wall-39515163_52183" target="_blank" rel="noopener noreferrer">Международный день добровольца</a>
+                  <a href="https://vk.com/mosvolonter?w=wall-39515163_49364" target="_blank" rel="noopener noreferrer">Акция «Вам, любимые»</a>
+                  <a href="https://vk.com/wall-39515163_47810" target="_blank" rel="noopener noreferrer">Штаб по сбору гуманитарной помощи</a>
+                </div>
+                <div class="timeline-sub">
+                  <span>Фото:</span>
+                  <a href="https://vk.com/mosvolonter?w=wall-39515163_52207" target="_blank" rel="noopener noreferrer">Штаб по встрече ветеранов</a>
+                  <a href="https://vk.com/wall-39515163_47469" target="_blank" rel="noopener noreferrer">Акция «Новогодние волшебники»</a>
+                  <a href="https://vk.com/wall-39515163_48914" target="_blank" rel="noopener noreferrer">Акция «Улицы героев»</a>
+                </div>
+              </li>
+              <li>Создание еженедельного корпоративного дайджеста: сбор информации, интервьюирование коллег, поиск тем (<a href="https://disk.yandex.ru/d/ZHzS9AeDD7MrfQ" target="_blank" rel="noopener noreferrer">примеры выпусков</a>)</li>
+              <li>Аналитика соцсетей организации и подготовка отчётности по государственному заданию</li>
+            </ul>
           </div>
         </article>
 
@@ -1192,15 +1280,26 @@
             <p class="timeline-period">Январь 2021 — Апрель 2022</p>
             <h3 class="timeline-role">Ведущий специалист по связям с общественностью</h3>
             <p class="timeline-org">ГБУ «Мосволонтёр»</p>
-          </div>
-        </article>
-
-        <article class="timeline-item" role="listitem">
-          <div class="timeline-dot" aria-hidden="true"></div>
-          <div class="timeline-card">
-            <p class="timeline-period">Март — Май 2020</p>
-            <h3 class="timeline-role">Райтер</h3>
-            <p class="timeline-org">мывместе.рф</p>
+            <ul class="timeline-duties">
+              <li>Составление и реализация контент-плана для ВКонтакте, Telegram и Instagram*</li>
+              <li>Взаимодействие с партнёрами организации по созданию совместного контента</li>
+              <li>Разработка творческих форматов и рубрик:
+                <div class="timeline-sub">
+                  <a href="https://vk.com/wall-39515163_52076" target="_blank" rel="noopener noreferrer">Типы волонтёров на майские праздники</a>
+                  <a href="https://vk.com/wall-39515163_48281" target="_blank" rel="noopener noreferrer">День космонавтики</a>
+                  <a href="https://vk.com/wall-39515163_49151" target="_blank" rel="noopener noreferrer">Волонтёры-герои новогодних фильмов</a>
+                </div>
+              </li>
+              <li>Написание и оформление статей для ВКонтакте:
+                <div class="timeline-sub">
+                  <a href="https://vk.com/wall-39515163_49123" target="_blank" rel="noopener noreferrer">«Как волонтёру избежать выгорания?»</a>
+                  <a href="https://t.me/mosvol/1329" target="_blank" rel="noopener noreferrer">«Улицы героев» (Telegram)</a>
+                </div>
+              </li>
+              <li>Модерация комментариев и личных сообщений, отработка негатива в системе «Медиалогия Инцидент»</li>
+              <li>Съёмка и монтаж видео, оформление сторис, проведение прямых эфиров в Instagram*</li>
+              <li><small>* Компания Meta признана экстремистской и запрещена в России</small></li>
+            </ul>
           </div>
         </article>
 
@@ -1209,7 +1308,39 @@
           <div class="timeline-card">
             <p class="timeline-period">Июль 2019 — Июль 2020</p>
             <h3 class="timeline-role">Райтер</h3>
-            <p class="timeline-org">ФГБУ «Роскультцентр»</p>
+            <p class="timeline-org">ФГБУ «Роскультцентр» / «Росмолодёжь»</p>
+            <ul class="timeline-duties">
+              <li>Написание пресс- и пост-релизов, статей, постов для соцсетей в рамках проектов: «Русские рифмы», «Русское слово», «Громче!», «Города»</li>
+              <li>Взаимодействие с федеральными и региональными СМИ</li>
+              <li>Ведение сайта организации на платформе Tilda</li>
+              <li>Примеры материалов:
+                <div class="timeline-sub">
+                  <a href="https://xn--e1ajdjblfdlcg2b2e.xn--p1ai/nacbest2020" target="_blank" rel="noopener noreferrer">Номинант Премии «Национальный бестселлер»</a>
+                  <a href="https://www.instagram.com/p/B8gunB4BSCP/" target="_blank" rel="noopener noreferrer">Подборка молодых театральных режиссёров</a>
+                  <a href="https://www.instagram.com/p/B7QqpHvCuza/" target="_blank" rel="noopener noreferrer">Арт-карта: Великий Устюг</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="timeline-item" role="listitem">
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <div class="timeline-card">
+            <p class="timeline-period">Март — Май 2020</p>
+            <h3 class="timeline-role">Райтер</h3>
+            <p class="timeline-org">мывместе.рф — Всероссийская акция взаимопомощи #МыВместе</p>
+            <ul class="timeline-duties">
+              <li>Подготовка структуры материалов, интервьюирование героев, написание текстов о волонтёрах, помогавших пожилым гражданам и медикам в период пандемии</li>
+              <li>Примеры публикаций:
+                <div class="timeline-sub">
+                  <a href="https://мывместе2020.рф/news/tpost/u3kyoyakv2-zhiteli-derevni-fedkovo-nauchat-pech-hle" target="_blank" rel="noopener noreferrer">Жители деревни Федьково научат печь хлеб по WhatsApp</a>
+                  <a href="https://мывместе2020.рф/news/tpost/7hvie0mzn7-esche-bolshe-shkolnikov-po-vsei-strane-h" target="_blank" rel="noopener noreferrer">Школьники со всей страны хотят читать сказки онлайн</a>
+                  <a href="https://мывместе2020.рф/news/tpost/jf45f4mbt0-83-letnyaya-moskvichka-napisala-stihotvo" target="_blank" rel="noopener noreferrer">83-летняя москвичка написала стихотворение для волонтёров</a>
+                  <a href="https://мывместе2020.рф/news/tpost/no106v8nnf-obladatelnitsa-titula-samaya-krasivaya-b" target="_blank" rel="noopener noreferrer">«Самая красивая бабушка Европы» присоединилась к волонтёрам</a>
+                </div>
+              </li>
+            </ul>
           </div>
         </article>
 
@@ -1218,7 +1349,19 @@
           <div class="timeline-card">
             <p class="timeline-period">Январь — Июль 2018</p>
             <h3 class="timeline-role">Главный редактор</h3>
-            <p class="timeline-org">Пресс-служба ОСО ВГУ</p>
+            <p class="timeline-org">Пресс-служба ОСО ВГУ (Воронежский государственный университет)</p>
+            <ul class="timeline-duties">
+              <li>Разработка контент-плана: введение новых рубрик, организация конкурсов, вся креативная составляющая</li>
+              <li>Редактирование и корректура текстов более десяти авторов, написание имиджевых материалов</li>
+              <li>Продвижение ОСО ВГУ в университетских и городских сообществах</li>
+              <li>Примеры материалов:
+                <div class="timeline-sub">
+                  <a href="https://vk.com/vsu.uknow?w=wall-115501221_1337" target="_blank" rel="noopener noreferrer">Статья из цикла Born in VSU</a>
+                  <a href="https://vk.com/vsu.uknow?w=wall-115501221_1413" target="_blank" rel="noopener noreferrer">Интервью с командами КВН</a>
+                  <a href="https://vk.com/vsu.uknow?w=wall-115501221_1391" target="_blank" rel="noopener noreferrer">Рубрика «Алфавит ВГУ»</a>
+                </div>
+              </li>
+            </ul>
           </div>
         </article>
 
@@ -1227,7 +1370,10 @@
           <div class="timeline-card">
             <p class="timeline-period">Март — Октябрь 2017</p>
             <h3 class="timeline-role">Копирайтер</h3>
-            <p class="timeline-org">Студия SEMANTICA</p>
+            <p class="timeline-org">Студия поискового маркетинга SEMANTICA</p>
+            <ul class="timeline-duties">
+              <li>Написание SEO-оптимизированных текстов для сайтов воронежских компаний</li>
+            </ul>
           </div>
         </article>
 
@@ -1236,7 +1382,13 @@
           <div class="timeline-card">
             <p class="timeline-period">Май 2016 — Январь 2017</p>
             <h3 class="timeline-role">Член исполнительной дирекции</h3>
-            <p class="timeline-org">ФРОС «Region PR»</p>
+            <p class="timeline-org">ФРОС «Region PR» — «Russian Event Awards», «Маршрут года», «МедиаТур»</p>
+            <ul class="timeline-duties">
+              <li>Взаимодействие с информационными партнёрами премий федерального уровня</li>
+              <li>Работа с участниками конкурса (несколько сотен человек)</li>
+              <li>Написание пресс- и пост-релизов</li>
+              <li>Формирование баз данных, реестров и оценочных ведомостей</li>
+            </ul>
           </div>
         </article>
 
