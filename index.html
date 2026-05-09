@@ -205,22 +205,26 @@
 
     .nav-mobile a:hover { color: var(--accent-gold); }
 
-    /* ===== CANVAS PARTICLES ===== */
+    /* ===== CANVAS — full page fixed ===== */
     #particles-canvas {
-      position: absolute;
+      position: fixed;
       inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
       pointer-events: none;
     }
 
     /* ===== HERO ===== */
     #hero {
       position: relative;
+      z-index: 1;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      background: var(--bg-primary);
+      background: rgba(24,24,36,0.82);
     }
 
     .hero-gradient {
@@ -269,8 +273,8 @@
     }
 
     .hero-avatar-img {
-      width: 160px;
-      height: 160px;
+      width: 320px;
+      height: 320px;
       border-radius: 50%;
       object-fit: cover;
       object-position: center top;
@@ -282,13 +286,13 @@
     }
 
     @keyframes avatarGlow {
-      0%  { box-shadow: 0 0 20px rgba(201,168,76,0.15); }
-      100%{ box-shadow: 0 0 50px rgba(201,168,76,0.3), 0 0 80px rgba(201,168,76,0.1); }
+      0%  { box-shadow: 0 0 30px rgba(201,168,76,0.2); }
+      100%{ box-shadow: 0 0 70px rgba(201,168,76,0.4), 0 0 120px rgba(201,168,76,0.12); }
     }
 
     .hero-avatar-ring {
       position: absolute;
-      inset: -12px;
+      inset: -20px;
       border-radius: 50%;
       border: 1px solid rgba(201,168,76,0.3);
       animation: ringRotate 12s linear infinite;
@@ -488,8 +492,9 @@
 
     /* ===== ABOUT ===== */
     #about {
-      background: var(--bg-secondary);
+      background: rgba(30,30,44,0.90);
       position: relative;
+      z-index: 1;
       overflow: hidden;
     }
 
@@ -620,7 +625,9 @@
 
     /* ===== EXPERIENCE ===== */
     #experience {
-      background: var(--bg-primary);
+      background: rgba(24,24,36,0.90);
+      position: relative;
+      z-index: 1;
     }
 
     .timeline {
@@ -827,8 +834,9 @@
 
     /* ===== ACHIEVEMENTS ===== */
     #achievements {
-      background: var(--bg-secondary);
+      background: rgba(30,30,44,0.90);
       position: relative;
+      z-index: 1;
       overflow: hidden;
     }
 
@@ -908,9 +916,10 @@
 
     /* ===== CONTACT ===== */
     #contact {
-      background: var(--bg-primary);
+      background: rgba(24,24,36,0.90);
       text-align: center;
       position: relative;
+      z-index: 1;
       overflow: hidden;
     }
 
@@ -988,6 +997,8 @@
 
     /* ===== FOOTER ===== */
     footer {
+      position: relative;
+      z-index: 1;
       padding: 2rem;
       border-top: 1px solid var(--border);
       text-align: center;
@@ -1050,8 +1061,8 @@
       }
 
       .hero-avatar-img {
-        width: 120px;
-        height: 120px;
+        width: 220px;
+        height: 220px;
       }
 
       .skills-grid {
@@ -1093,9 +1104,11 @@
     <a href="#contact" onclick="closeMobile()">Контакты</a>
   </nav>
 
+  <!-- CANVAS — full page background -->
+  <canvas id="particles-canvas" aria-hidden="true"></canvas>
+
   <!-- HERO -->
   <section id="hero" aria-label="Главная секция">
-    <canvas id="particles-canvas" aria-hidden="true"></canvas>
     <div class="hero-gradient" aria-hidden="true"></div>
 
     <div class="hero-content">
@@ -1114,7 +1127,7 @@
 
       <h1 class="hero-name">
         <span>Киселева</span>
-        <span>Анна Петровна</span>
+        <span>Анна</span>
       </h1>
 
       <div class="hero-roles" role="list" aria-label="Специализации">
@@ -1142,8 +1155,7 @@
   <section id="about" aria-labelledby="about-heading">
     <div class="container">
       <header class="section-header reveal">
-        <p class="section-label">Обо мне</p>
-        <h2 class="section-title" id="about-heading">Кто я такая</h2>
+        <h2 class="section-title" id="about-heading">Обо мне</h2>
         <div class="section-divider" aria-hidden="true"></div>
       </header>
 
@@ -1471,115 +1483,240 @@
   </footer>
 
   <script>
-    /* ===== PARTICLES ===== */
+    /* ===== WRITING INSTRUMENTS BACKGROUND ===== */
     (function() {
       const canvas = document.getElementById('particles-canvas');
-      const ctx = canvas.getContext('2d');
-      let elements = [];
-      let W, H, animId;
+      const ctx    = canvas.getContext('2d');
+      let elements = [], W, H, animId;
 
       const COLORS = [
-        [201,168,76],   // gold
-        [232,201,122],  // gold light
-        [201,123,138],  // rose
-        [180,155,220],  // soft lavender
+        [201,168,76],  // gold
+        [232,201,122], // light gold
+        [201,123,138], // rose
+        [180,155,220], // lavender
+        [140,185,200], // soft teal
       ];
+      const TYPES = ['pencil','pen','notebook','book','quill','inkdrop','star'];
 
       function resize() {
-        W = canvas.width  = canvas.offsetWidth;
-        H = canvas.height = canvas.offsetHeight;
+        W = canvas.width  = window.innerWidth;
+        H = canvas.height = window.innerHeight;
       }
 
-      /* shape types: 0=dot, 1=diamond, 2=cross, 3=ring, 4=line */
-      class Element {
-        constructor() { this.reset(true); }
+      class WritingEl {
+        constructor(init) { this.reset(init); }
         reset(init) {
           this.x     = Math.random() * W;
-          this.y     = init ? Math.random() * H : H + 20;
-          this.type  = Math.floor(Math.random() * 5);
-          this.size  = this.type === 4
-                       ? Math.random() * 30 + 10
-                       : Math.random() * 8 + 2;
-          this.speed = Math.random() * 0.5 + 0.15;
-          this.drift = (Math.random() - 0.5) * 0.45;
+          this.y     = init ? Math.random() * H : H + 40;
+          this.type  = TYPES[Math.floor(Math.random() * TYPES.length)];
+          this.size  = Math.random() * 14 + 9;
+          this.speed = Math.random() * 0.45 + 0.12;
+          this.drift = (Math.random() - 0.5) * 0.4;
           this.rot   = Math.random() * Math.PI * 2;
-          this.rotSpeed = (Math.random() - 0.5) * 0.02;
-          this.alpha = Math.random() * 0.35 + 0.08;
+          this.rotSp = (Math.random() - 0.5) * 0.009;
+          this.alpha = Math.random() * 0.28 + 0.07;
           this.pulse = Math.random() * Math.PI * 2;
-          this.pulseSpeed = Math.random() * 0.018 + 0.004;
+          this.pulSp = Math.random() * 0.016 + 0.004;
           this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
         }
         update() {
           this.y    -= this.speed;
           this.x    += this.drift;
-          this.rot  += this.rotSpeed;
-          this.pulse += this.pulseSpeed;
-          if (this.y < -30) this.reset(false);
+          this.rot  += this.rotSp;
+          this.pulse += this.pulSp;
+          if (this.y < -50 || this.x < -60 || this.x > W + 60) this.reset(false);
         }
         draw() {
-          const a = this.alpha * (0.55 + 0.45 * Math.sin(this.pulse));
+          const a = this.alpha * (0.5 + 0.5 * Math.sin(this.pulse));
           const [r,g,b] = this.color;
+          const s = this.size;
           ctx.save();
           ctx.translate(this.x, this.y);
           ctx.rotate(this.rot);
-          ctx.globalAlpha = a;
+          ctx.strokeStyle = `rgba(${r},${g},${b},${a})`;
+          ctx.fillStyle   = `rgba(${r},${g},${b},${a * 0.18})`;
+          ctx.lineWidth   = 0.75;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
 
-          if (this.type === 0) {
-            /* dot */
+          switch (this.type) {
+            case 'pencil':   this._pencil(s);   break;
+            case 'pen':      this._pen(s);       break;
+            case 'notebook': this._notebook(s);  break;
+            case 'book':     this._book(s);      break;
+            case 'quill':    this._quill(s);     break;
+            case 'inkdrop':  this._inkdrop(s);   break;
+            case 'star':     this._star(s);      break;
+          }
+          ctx.restore();
+        }
+
+        _pencil(s) {
+          const w = s * 0.28, h = s * 1.5;
+          /* eraser block */
+          ctx.fillRect(-w/2, -h/2, w, h * 0.14);
+          ctx.strokeRect(-w/2, -h/2, w, h * 0.14);
+          /* body */
+          ctx.strokeRect(-w/2, -h/2 + h*0.14, w, h * 0.64);
+          /* tip cone */
+          ctx.beginPath();
+          ctx.moveTo(-w/2, -h/2 + h*0.78);
+          ctx.lineTo(0,     -h/2 + h);
+          ctx.lineTo( w/2,  -h/2 + h*0.78);
+          ctx.stroke();
+          /* graphite tip dot */
+          ctx.beginPath();
+          ctx.arc(0, -h/2 + h, 1, 0, Math.PI*2);
+          ctx.fill();
+        }
+
+        _pen(s) {
+          const w = s * 0.24, h = s * 1.7;
+          /* body */
+          ctx.beginPath();
+          ctx.moveTo(-w/2,    -h/2);
+          ctx.lineTo( w/2,    -h/2);
+          ctx.lineTo( w/2*0.5, h/2 - s*0.28);
+          ctx.lineTo( 0,       h/2);
+          ctx.lineTo(-w/2*0.5, h/2 - s*0.28);
+          ctx.closePath();
+          ctx.stroke();
+          /* nib slit */
+          ctx.beginPath();
+          ctx.moveTo(0, h/2 - s*0.22);
+          ctx.lineTo(0, h/2);
+          ctx.stroke();
+          /* clip on side */
+          ctx.beginPath();
+          ctx.moveTo(w/2,          -h/2);
+          ctx.lineTo(w/2 + s*0.12,  h/2 - s*0.7);
+          ctx.stroke();
+          /* cap line */
+          ctx.beginPath();
+          ctx.moveTo(-w/2, -h/2 + s*0.22);
+          ctx.lineTo( w/2, -h/2 + s*0.22);
+          ctx.stroke();
+        }
+
+        _notebook(s) {
+          const w = s * 1.15, h = s * 1.45;
+          /* cover */
+          ctx.strokeRect(-w/2, -h/2, w, h);
+          ctx.fillRect(-w/2, -h/2, w, h);
+          /* spine */
+          ctx.beginPath();
+          ctx.moveTo(-w/2 + s*0.2, -h/2);
+          ctx.lineTo(-w/2 + s*0.2,  h/2);
+          ctx.stroke();
+          /* ruled lines */
+          [0.32, 0.50, 0.67].forEach(t => {
             ctx.beginPath();
-            ctx.arc(0, 0, this.size * 0.5, 0, Math.PI * 2);
-            ctx.fillStyle = `rgb(${r},${g},${b})`;
+            ctx.moveTo(-w/2 + s*0.3, -h/2 + h*t);
+            ctx.lineTo( w/2 - s*0.1, -h/2 + h*t);
+            ctx.stroke();
+          });
+          /* binding holes */
+          [0.22, 0.50, 0.78].forEach(t => {
+            ctx.beginPath();
+            ctx.arc(-w/2 + s*0.1, -h/2 + h*t, 1.5, 0, Math.PI*2);
             ctx.fill();
+          });
+        }
 
-          } else if (this.type === 1) {
-            /* diamond */
-            const s = this.size;
+        _book(s) {
+          const w = s * 1.35, h = s * 0.95;
+          /* left page */
+          ctx.beginPath();
+          ctx.moveTo(0, -h/2 - s*0.06);
+          ctx.bezierCurveTo(-w*0.08,-h/2, -w/2,-h/2+s*0.06, -w/2, 0);
+          ctx.bezierCurveTo(-w/2, h/2-s*0.06, -w*0.08, h/2, 0, h/2+s*0.06);
+          ctx.stroke();
+          /* right page */
+          ctx.beginPath();
+          ctx.moveTo(0, -h/2 - s*0.06);
+          ctx.bezierCurveTo( w*0.08,-h/2,  w/2,-h/2+s*0.06,  w/2, 0);
+          ctx.bezierCurveTo( w/2, h/2-s*0.06,  w*0.08, h/2, 0, h/2+s*0.06);
+          ctx.stroke();
+          /* spine */
+          ctx.beginPath();
+          ctx.moveTo(0, -h/2 - s*0.06);
+          ctx.lineTo(0,  h/2 + s*0.06);
+          ctx.stroke();
+          /* text lines left */
+          [-h*0.22, 0, h*0.22].forEach(dy => {
             ctx.beginPath();
-            ctx.moveTo(0, -s);
-            ctx.lineTo(s * 0.6, 0);
-            ctx.lineTo(0, s);
-            ctx.lineTo(-s * 0.6, 0);
-            ctx.closePath();
-            ctx.strokeStyle = `rgb(${r},${g},${b})`;
-            ctx.lineWidth = 0.8;
+            ctx.moveTo(-w*0.38, dy); ctx.lineTo(-s*0.1, dy); ctx.stroke();
+          });
+          /* text lines right */
+          [-h*0.22, 0, h*0.22].forEach(dy => {
+            ctx.beginPath();
+            ctx.moveTo(s*0.1, dy); ctx.lineTo(w*0.38, dy); ctx.stroke();
+          });
+        }
+
+        _quill(s) {
+          const h = s * 1.8;
+          /* shaft */
+          ctx.beginPath();
+          ctx.moveTo(0,  h*0.45);
+          ctx.lineTo(0, -h*0.1);
+          ctx.stroke();
+          /* vanes */
+          for (let i = 0; i < 6; i++) {
+            const t  = i / 5;
+            const y  = h*0.42 - t * h * 0.72;
+            const xl = s * (0.08 + t * 0.52);
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.quadraticCurveTo( xl*0.55, y - s*0.14,  xl, y - s*0.28 + t*s*0.1);
             ctx.stroke();
-
-          } else if (this.type === 2) {
-            /* cross / plus */
-            const s = this.size * 0.55;
-            ctx.strokeStyle = `rgb(${r},${g},${b})`;
-            ctx.lineWidth = 0.9;
             ctx.beginPath();
-            ctx.moveTo(-s, 0); ctx.lineTo(s, 0);
-            ctx.moveTo(0, -s); ctx.lineTo(0, s);
-            ctx.stroke();
-
-          } else if (this.type === 3) {
-            /* ring */
-            ctx.beginPath();
-            ctx.arc(0, 0, this.size * 0.5, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgb(${r},${g},${b})`;
-            ctx.lineWidth = 0.7;
-            ctx.stroke();
-
-          } else {
-            /* short diagonal line */
-            const s = this.size;
-            ctx.strokeStyle = `rgb(${r},${g},${b})`;
-            ctx.lineWidth = 0.6;
-            ctx.beginPath();
-            ctx.moveTo(-s * 0.5, -s * 0.5);
-            ctx.lineTo(s * 0.5, s * 0.5);
+            ctx.moveTo(0, y);
+            ctx.quadraticCurveTo(-xl*0.55, y - s*0.14, -xl, y - s*0.28 + t*s*0.1);
             ctx.stroke();
           }
+          /* nib */
+          ctx.beginPath();
+          ctx.moveTo(0, h*0.45);
+          ctx.lineTo(-s*0.13, h*0.45 - s*0.28);
+          ctx.moveTo(0, h*0.45);
+          ctx.lineTo( s*0.13, h*0.45 - s*0.28);
+          ctx.stroke();
+        }
 
-          ctx.restore();
+        _inkdrop(s) {
+          /* teardrop */
+          ctx.beginPath();
+          ctx.moveTo(0, -s*0.7);
+          ctx.bezierCurveTo( s*0.55,-s*0.1,  s*0.55, s*0.35, 0, s*0.55);
+          ctx.bezierCurveTo(-s*0.55, s*0.35, -s*0.55,-s*0.1, 0, -s*0.7);
+          ctx.closePath();
+          ctx.stroke();
+          ctx.fill();
+          /* inner highlight */
+          ctx.beginPath();
+          ctx.arc(s*0.12, s*0.05, s*0.1, 0, Math.PI*2);
+          ctx.fill();
+        }
+
+        _star(s) {
+          /* 6-point ink-star (asterisk style) */
+          for (let i = 0; i < 6; i++) {
+            const a = (i / 6) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(a)*s*0.7, Math.sin(a)*s*0.7);
+            ctx.stroke();
+          }
+          ctx.beginPath();
+          ctx.arc(0, 0, s*0.12, 0, Math.PI*2);
+          ctx.fill();
         }
       }
 
       function init() {
         resize();
-        elements = Array.from({ length: 90 }, () => new Element());
+        elements = Array.from({ length: 100 }, (_, i) => new WritingEl(true));
       }
 
       function loop() {
